@@ -3,7 +3,7 @@
 Plugin Name: Member Post Tracker
 Description: Tracks read posts for logged-in users and provides a button to mark posts as read.
 Version: 1.0
-Author: Your Name
+Author: Toni Quiñonero
 License: GPL v3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 */
