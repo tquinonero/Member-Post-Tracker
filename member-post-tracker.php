@@ -12,6 +12,8 @@ License URI: https://www.gnu.org/licenses/gpl-3.0.html
 function member_post_tracker_enqueue_script() {
     // Enqueue your custom JavaScript file
     wp_enqueue_script('member-post-tracker-script', plugin_dir_url(__FILE__) . 'script.js', array('jquery'), null, true);
+    //Enqueue styles for the button
+    wp_enqueue_style('member-post-tracker-style', plugin_dir_url(__FILE__) . 'style.css');
     // Enqueue WordPress AJAX script
     wp_enqueue_script('wp-ajax-js');
     wp_localize_script('member-post-tracker-script', 'ajax_object', array('ajaxurl' => admin_url('admin-ajax.php')));
