@@ -7,7 +7,6 @@ Author: Toni Quiñonero
 License: GPL v3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 */
-
 // Enqueue JavaScript file and WordPress AJAX script
 function member_post_tracker_enqueue_script() {
     // Enqueue your custom JavaScript file
@@ -20,7 +19,55 @@ function member_post_tracker_enqueue_script() {
 }
 add_action('wp_enqueue_scripts', 'member_post_tracker_enqueue_script');
 
+function member_post_tracker_settings_page() {
+    add_options_page(
+        'Member Post Tracker Settings',
+        'Member Post Tracker Settings',
+        'manage_options',
+        'member-post-tracker-settings',
+        'member_post_tracker_settings_page_markup'
+    );
+}
+add_action('admin_menu', 'member_post_tracker_settings_page');
 
+function member_post_tracker_settings_page_markup() {
+    ?>
+    <div class="wrap">
+        <h2>Member Post Tracker Settings</h2>
+        <form method="post" action="options.php">
+            <?php settings_fields('member_post_tracker_settings'); ?>
+            <?php do_settings_sections('member-post-tracker-settings'); ?>
+            <?php submit_button(); ?>
+        </form>
+    </div>
+    <?php
+}
+function member_post_tracker_settings_init() {
+    register_setting('member_post_tracker_settings', 'member_post_tracker_post_type');
+    add_settings_section(
+        'member_post_tracker_settings_section',
+        'Post Type Settings',
+        'member_post_tracker_settings_section_markup',
+        'member-post-tracker-settings'
+    );
+    add_settings_field(
+        'member_post_tracker_post_type_field',
+        'Enter Post Type',
+        'member_post_tracker_post_type_field_markup',
+        'member-post-tracker-settings',
+        'member_post_tracker_settings_section'
+    );
+}
+add_action('admin_init', 'member_post_tracker_settings_init');
+
+function member_post_tracker_settings_section_markup() {
+    echo '<p>Enter the custom post type for the Member Post Tracker functionality.</p>';
+}
+
+function member_post_tracker_post_type_field_markup() {
+    $post_type = get_option('member_post_tracker_post_type');
+    echo '<input type="text" name="member_post_tracker_post_type" value="' . esc_attr($post_type) . '" />';
+}
 
 // AJAX handler to mark posts as read
 function mark_post_as_read() {
@@ -45,16 +92,16 @@ add_action('wp_ajax_mark_post_as_read', 'mark_post_as_read');
 add_action('wp_ajax_nopriv_mark_post_as_read', 'mark_post_as_read');
 
 
-// Display button after content
 function display_mark_as_read_button($content) {
-    if (is_singular(array('member-video', 'programme')) && is_user_logged_in()) {
-        $post_id = get_the_ID();
-        $user_id = get_current_user_id();
-        $read_posts = (array) get_user_meta($user_id, 'read_posts', true);
-        $button_text = in_array($post_id, $read_posts) ? 'Read' : 'Mark as Read';
-        $button_markup = '<button class="mark-as-read" data-post-id="' . $post_id . '">' . $button_text . '</button>';
+    $post_type = get_option('member_post_tracker_post_type');
+    if (!empty($post_type) && is_singular($post_type) && is_user_logged_in()) {
+        global $post;
+        $post_id = $post->ID;
+        // Add your button markup here with data-post-id attribute
+        $button_markup = '<button class="mark-as-read-button" data-post-id="' . $post_id . '">Mark as Read</button>';
         $content .= $button_markup;
     }
     return $content;
 }
+
 add_filter('the_content', 'display_mark_as_read_button');
