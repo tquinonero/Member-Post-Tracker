@@ -1,5 +1,5 @@
 jQuery(document).ready(function($) {
-    $(document).on('click', '.mark-as-read', function() {
+    $(document).on('click', '.mark-as-read-button', function() {
         var post_id = $(this).data('post-id');
         $.ajax({
             type: 'POST',
@@ -11,7 +11,7 @@ jQuery(document).ready(function($) {
             success: function(response) {
                 console.log('AJAX Success:', response);
                 if (response === 'success') {
-                    $('.mark-as-read[data-post-id="' + post_id + '"]').text('Read');
+                    $('.mark-as-read-button[data-post-id="' + post_id + '"]').text('Read');
                 }
             }
         });
