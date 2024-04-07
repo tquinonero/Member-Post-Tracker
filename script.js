@@ -11,9 +11,9 @@ jQuery(document).ready(function($) {
             success: function(response) {
                 console.log('AJAX Success:', response);
                 if (response === 'success') {
-                    $('.mark-as-read-button[data-post-id="' + post_id + '"]').text('Read');
+                    $('.mark-as-read-button[data-post-id="' + post_id + '"] span').text('Read');
                 }
-            }
+            }            
         });
     });
 });
