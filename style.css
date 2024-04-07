@@ -1,2 +1,2 @@
-.mark-as-read{background-color: blueviolet; color: white; font-size: 13px; padding: 1.2em;}
-.mark-as-read:hover{transform: scale(1.05); pointer-events: all;}
+.mark-as-read-button{background-color: blueviolet; color: white; font-size: 13px; padding: 1.2em;}
+.mark-as-read-button:hover{transform: scale(1.05); pointer-events: all;}
