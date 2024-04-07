@@ -2,11 +2,12 @@
 /*
 Plugin Name: Member Post Tracker
 Description: Tracks read posts for logged-in users and provides a button to mark posts as read.
-Version: 1.0
+Version: 1.1
 Author: Toni Quiñonero
 License: GPL v3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 */
+
 // Enqueue JavaScript file and WordPress AJAX script
 function member_post_tracker_enqueue_script() {
     // Enqueue your custom JavaScript file
@@ -18,6 +19,16 @@ function member_post_tracker_enqueue_script() {
     wp_localize_script('member-post-tracker-script', 'ajax_object', array('ajaxurl' => admin_url('admin-ajax.php')));
 }
 add_action('wp_enqueue_scripts', 'member_post_tracker_enqueue_script');
+
+function member_post_tracker_enqueue_admin_script($hook) {
+    if ($hook != 'settings_page_member-post-tracker-settings') {
+        return;
+    }
+    wp_enqueue_media();
+    wp_enqueue_script('member-post-tracker-admin-script', plugin_dir_url(__FILE__) . 'admin-script.js', array('jquery'), null, true);
+}
+add_action('admin_enqueue_scripts', 'member_post_tracker_enqueue_admin_script');
+
 
 function member_post_tracker_settings_page() {
     add_options_page(
@@ -42,8 +53,10 @@ function member_post_tracker_settings_page_markup() {
     </div>
     <?php
 }
+
 function member_post_tracker_settings_init() {
     register_setting('member_post_tracker_settings', 'member_post_tracker_post_type');
+    register_setting('member_post_tracker_settings', 'member_post_tracker_button_image'); // New setting for button image
     add_settings_section(
         'member_post_tracker_settings_section',
         'Post Type Settings',
@@ -57,6 +70,13 @@ function member_post_tracker_settings_init() {
         'member-post-tracker-settings',
         'member_post_tracker_settings_section'
     );
+    add_settings_field(
+        'member_post_tracker_button_image_field',
+        'Upload Button Image',
+        'member_post_tracker_button_image_field_markup',
+        'member-post-tracker-settings',
+        'member_post_tracker_settings_section'
+    );
 }
 add_action('admin_init', 'member_post_tracker_settings_init');
 
@@ -67,6 +87,12 @@ function member_post_tracker_settings_section_markup() {
 function member_post_tracker_post_type_field_markup() {
     $post_type = get_option('member_post_tracker_post_type');
     echo '<input type="text" name="member_post_tracker_post_type" value="' . esc_attr($post_type) . '" />';
+}
+
+function member_post_tracker_button_image_field_markup() {
+    $button_image = get_option('member_post_tracker_button_image');
+    echo '<input type="text" id="member_post_tracker_button_image" name="member_post_tracker_button_image" value="' . esc_attr($button_image) . '" />';
+    echo '<input type="button" id="member_post_tracker_upload_button" class="button" value="Upload Image" />';
 }
 
 // AJAX handler to mark posts as read
@@ -94,11 +120,12 @@ add_action('wp_ajax_nopriv_mark_post_as_read', 'mark_post_as_read');
 
 function display_mark_as_read_button($content) {
     $post_type = get_option('member_post_tracker_post_type');
+    $button_image = get_option('member_post_tracker_button_image'); // Get button image URL
     if (!empty($post_type) && is_singular($post_type) && is_user_logged_in()) {
         global $post;
         $post_id = $post->ID;
-        // Add your button markup here with data-post-id attribute
-        $button_markup = '<button class="mark-as-read-button" data-post-id="' . $post_id . '">Mark as Read</button>';
+        // Add your button markup here with data-post-id attribute and custom image
+        $button_markup = '<button class="mark-as-read-button" data-post-id="' . $post_id . '"><img src="' . $button_image . '" alt="Mark as Read" />&nbsp;<span>Mark as Read</span></button>';
         $content .= $button_markup;
     }
     return $content;
