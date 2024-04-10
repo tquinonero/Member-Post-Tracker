@@ -47,7 +47,7 @@ add_action('wp_ajax_nopriv_mark_post_as_read', 'mark_post_as_read');
 
 // Display button after content
 function display_mark_as_read_button($content) {
-    if (is_singular(array('member-video', 'programme')) && is_user_logged_in()) {
+    if (is_singular(array('member-videos', 'programme')) && is_user_logged_in()) {
         $post_id = get_the_ID();
         $user_id = get_current_user_id();
         $read_posts = (array) get_user_meta($user_id, 'read_posts', true);
